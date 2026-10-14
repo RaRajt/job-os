@@ -1,0 +1,590 @@
+﻿{
+    "name":  "Job tracker",
+    "nodes":  [
+                  {
+                      "id":  "n1",
+                      "name":  "Button pressed",
+                      "type":  "n8n-nodes-base.webhook",
+                      "typeVersion":  2,
+                      "position":  [
+                                       0,
+                                       0
+                                   ],
+                      "webhookId":  "process-new-jobs-01",
+                      "parameters":  {
+                                         "path":  "process-new-jobs",
+                                         "httpMethod":  "GET",
+                                         "responseMode":  "onReceived",
+                                         "options":  {
+                                                         "responseData":  "Got it! Processing your new jobs now. You can close this tab and check your sheet in a minute."
+                                                     }
+                                     }
+                  },
+                  {
+                      "id":  "n2",
+                      "name":  "Settings",
+                      "type":  "n8n-nodes-base.set",
+                      "typeVersion":  3.4,
+                      "position":  [
+                                       110,
+                                       0
+                                   ],
+                      "parameters":  {
+                                         "assignments":  {
+                                                             "assignments":  [
+                                                                                 {
+                                                                                     "id":  "s1",
+                                                                                     "name":  "sheet_id",
+                                                                                     "type":  "string",
+                                                                                     "value":  "YOUR_SHEET_ID"
+                                                                                 },
+                                                                                 {
+                                                                                     "id":  "s2",
+                                                                                     "name":  "drive_folder_id",
+                                                                                     "type":  "string",
+                                                                                     "value":  "YOUR_DRIVE_FOLDER_ID"
+                                                                                 },
+                                                                                 {
+                                                                                     "id":  "s3",
+                                                                                     "name":  "brain_workflow_id",
+                                                                                     "type":  "string",
+                                                                                     "value":  "YOUR_BRAIN_WORKFLOW_ID"
+                                                                                 }
+                                                                             ]
+                                                         },
+                                         "options":  {
+
+                                                     }
+                                     }
+                  },
+                  {
+                      "id":  "n3",
+                      "name":  "Read sheet",
+                      "type":  "n8n-nodes-base.googleSheets",
+                      "typeVersion":  4.5,
+                      "position":  [
+                                       220,
+                                       0
+                                   ],
+                      "credentials":  {
+                                          "googleSheetsOAuth2Api":  {
+                                                                        "id":  "YOUR_CREDENTIAL",
+                                                                        "name":  "Pick your own credential"
+                                                                    }
+                                      },
+                      "parameters":  {
+                                         "operation":  "read",
+                                         "documentId":  {
+                                                            "__rl":  true,
+                                                            "mode":  "id",
+                                                            "value":  "={{ $(\u0027Settings\u0027).item.json.sheet_id }}"
+                                                        },
+                                         "sheetName":  {
+                                                           "__rl":  true,
+                                                           "mode":  "name",
+                                                           "value":  "Sheet1"
+                                                       },
+                                         "options":  {
+
+                                                     }
+                                     }
+                  },
+                  {
+                      "id":  "n4",
+                      "name":  "Only new rows",
+                      "type":  "n8n-nodes-base.filter",
+                      "typeVersion":  2.2,
+                      "position":  [
+                                       440,
+                                       0
+                                   ],
+                      "parameters":  {
+                                         "conditions":  {
+                                                            "options":  {
+                                                                            "caseSensitive":  true,
+                                                                            "leftValue":  "",
+                                                                            "typeValidation":  "loose",
+                                                                            "version":  2
+                                                                        },
+                                                            "combinator":  "and",
+                                                            "conditions":  [
+                                                                               {
+                                                                                   "id":  "c1",
+                                                                                   "leftValue":  "={{ $json[\u0027Job URL\u0027] }}",
+                                                                                   "rightValue":  "",
+                                                                                   "operator":  {
+                                                                                                    "type":  "string",
+                                                                                                    "operation":  "notEmpty",
+                                                                                                    "singleValue":  true
+                                                                                                }
+                                                                               },
+                                                                               {
+                                                                                   "id":  "c2",
+                                                                                   "leftValue":  "={{ $json[\u0027JD text link\u0027] }}",
+                                                                                   "rightValue":  "",
+                                                                                   "operator":  {
+                                                                                                    "type":  "string",
+                                                                                                    "operation":  "empty",
+                                                                                                    "singleValue":  true
+                                                                                                }
+                                                                               }
+                                                                           ]
+                                                        },
+                                         "options":  {
+
+                                                     }
+                                     }
+                  },
+                  {
+                      "id":  "n5",
+                      "name":  "HTTP Request",
+                      "type":  "n8n-nodes-base.httpRequest",
+                      "typeVersion":  4.2,
+                      "position":  [
+                                       660,
+                                       0
+                                   ],
+                      "onError":  "continueRegularOutput",
+                      "parameters":  {
+                                         "url":  "={{ $json[\u0027Job URL\u0027] }}",
+                                         "sendHeaders":  true,
+                                         "headerParameters":  {
+                                                                  "parameters":  [
+                                                                                     {
+                                                                                         "name":  "User-Agent",
+                                                                                         "value":  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36"
+                                                                                     }
+                                                                                 ]
+                                                              },
+                                         "options":  {
+                                                         "timeout":  20000,
+                                                         "response":  {
+                                                                          "response":  {
+                                                                                           "responseFormat":  "text",
+                                                                                           "outputPropertyName":  "data"
+                                                                                       }
+                                                                      }
+                                                     }
+                                     }
+                  },
+                  {
+                      "id":  "n6",
+                      "name":  "HTML",
+                      "type":  "n8n-nodes-base.html",
+                      "typeVersion":  1.2,
+                      "position":  [
+                                       880,
+                                       0
+                                   ],
+                      "onError":  "continueRegularOutput",
+                      "parameters":  {
+                                         "operation":  "extractHtmlContent",
+                                         "dataPropertyName":  "data",
+                                         "extractionValues":  {
+                                                                  "values":  [
+                                                                                 {
+                                                                                     "key":  "title",
+                                                                                     "cssSelector":  "h1"
+                                                                                 },
+                                                                                 {
+                                                                                     "key":  "description",
+                                                                                     "cssSelector":  ".jobdescription, .job-description, #job-description, [data-automation-id=\"jobPostingDescription\"]"
+                                                                                 },
+                                                                                 {
+                                                                                     "key":  "fulltext",
+                                                                                     "cssSelector":  "body"
+                                                                                 }
+                                                                             ]
+                                                              },
+                                         "options":  {
+
+                                                     }
+                                     }
+                  },
+                  {
+                      "id":  "n7",
+                      "name":  "Rules: find details, build Doc text",
+                      "type":  "n8n-nodes-base.code",
+                      "typeVersion":  2,
+                      "position":  [
+                                       1100,
+                                       0
+                                   ],
+                      "parameters":  {
+                                         "mode":  "runOnceForEachItem",
+                                         "jsCode":  "// Runs once per job. Plain rules only, no AI.\nconst row = $(\u0027Only new rows\u0027).item.json;          // the original sheet row\nconst url = String(row[\u0027Job URL\u0027] || \u0027\u0027).trim();\nconst h = $json;                                     // what the HTML step found\n\n// 1. Clean up title, JD and full page text\nconst title = String(h.title || \u0027\u0027).replace(/\\s+/g, \u0027 \u0027).trim();\nconst jd = String(h.description || \u0027\u0027).replace(/[ \\t\\u00a0]+/g, \u0027 \u0027).replace(/\\s*\\n\\s*/g, \u0027\\n\u0027).trim();\nconst full = String(h.fulltext || \u0027\u0027).replace(/\\s+/g, \u0027 \u0027).trim();\n\n// 2. Company: read it from the web address\nlet host = \u0027\u0027, path = [];\nconst m = url.match(/^https?:\\/\\/([^\\/?#]+)([^?#]*)/i);   // cut the link into: website name + the path after it\nif (m) { host = m[1].toLowerCase().replace(/^www\\./, \u0027\u0027); path = m[2].split(\u0027/\u0027).filter(Boolean); }\nconst skip = [\u0027careers\u0027, \u0027career\u0027, \u0027jobs\u0027, \u0027job\u0027, \u0027apply\u0027, \u0027boards\u0027, \u0027en\u0027, \u0027in\u0027, \u0027www\u0027];\nlet company = host.split(\u0027.\u0027).find(p =\u003e !skip.includes(p)) || \u0027\u0027;\nconst jobBoards = [\u0027greenhouse.io\u0027, \u0027lever.co\u0027, \u0027ashbyhq.com\u0027, \u0027workable.com\u0027, \u0027smartrecruiters.com\u0027];\nif (jobBoards.some(b =\u003e host.endsWith(b))) company = path[0] || company;   // company name sits in the path\ncompany = company.length \u003c= 3 ? company.toUpperCase() : company.charAt(0).toUpperCase() + company.slice(1);\n\n// 3. Source: where did the link come from?\nconst low = url.toLowerCase();\nlet source = \u0027Company site\u0027;\nif (host.includes(\u0027linkedin\u0027)) source = \u0027LinkedIn\u0027;\nelse if (host.includes(\u0027naukri\u0027)) source = \u0027Naukri\u0027;\nelse if (host.includes(\u0027indeed\u0027)) source = \u0027Indeed\u0027;\nelse if (low.includes(\u0027utm_source=linkedin\u0027)) source = \u0027Company site (via LinkedIn)\u0027;\n\n// 4. Dates: look for date words followed by a date\nconst datePattern = /(posted on|posted|posting date|date posted|apply by|deadline|closing date|last date)[^.]{0,30}?(\\d{1,2}[\\/.-]\\d{1,2}[\\/.-]\\d{2,4}|\\d{4}-\\d{2}-\\d{2}|\\d{1,2}\\s+[A-Za-z]{3,9},?\\s+\\d{4}|[A-Za-z]{3,9}\\s+\\d{1,2},?\\s+\\d{4})/gi;\nconst found = [...full.matchAll(datePattern)].map(m =\u003e m[1] + \u0027: \u0027 + m[2]);\nconst dates = full.length \u003c= 200 ? \u0027\u0027 : (found.length ? [...new Set(found)].join(\u0027; \u0027) : \u0027No dates mentioned\u0027);\n\n// 5. Today\u0027s date in India time\nconst date_added = DateTime.now().setZone(\u0027Asia/Kolkata\u0027).toFormat(\u0027dd-MMM-yyyy\u0027);\n\n// 6a. Work type: look for the words in the page text\nconst lowText = (jd + \u0027 \u0027 + full).toLowerCase();\nconst work_type = /\\bhybrid\\b/.test(lowText) ? \u0027Hybrid\u0027\n                : /\\bremote\\b|work from home|wfh/.test(lowText) ? \u0027Remote\u0027\n                : /on-?site|in-office|work from office/.test(lowText) ? \u0027Onsite\u0027 : \u0027\u0027;\n\n// 6b. Location: first try a \"Location: ...\" label, else look for known cities\nlet location = \u0027\u0027;\nconst lm = full.match(/(?:job )?location[s]?\\s*[:\\-]\\s*([A-Za-z ,.\\-()]{2,60})/i);\nif (lm) location = lm[1].replace(/\\s+(other locations|apply|posted|date|job|requisition).*$/i, \u0027\u0027).trim();\nelse {\n  const cities = [\u0027Mumbai\u0027,\u0027Pune\u0027,\u0027Bengaluru\u0027,\u0027Bangalore\u0027,\u0027Hyderabad\u0027,\u0027Chennai\u0027,\u0027Gurugram\u0027,\u0027Gurgaon\u0027,\u0027Noida\u0027,\u0027Delhi\u0027,\u0027Kolkata\u0027,\u0027Ahmedabad\u0027,\u0027Dubai\u0027,\u0027London\u0027,\u0027Sydney\u0027,\u0027Melbourne\u0027,\u0027New York\u0027,\u0027Singapore\u0027];\n  const hit = cities.filter(c =\u003e full.includes(c));\n  location = [...new Set(hit)].slice(0, 3).join(\u0027, \u0027);\n}\n\n// 6. Decide the status: what did the rules manage to find?\nconst missing = [];\nif (!company) missing.push(\u0027company\u0027);\nif (!title) missing.push(\u0027title\u0027);\nif (!jd) missing.push(\u0027JD\u0027);\nconst pageOk = full.length \u003e 200;\nconst jd_status = !pageOk ? \u0027check: page did not open\u0027\n                : missing.length ? \u0027check: \u0027 + missing.join(\u0027, \u0027) + \u0027 not found\u0027\n                : \u0027complete\u0027;\n\n// 7. Build the Doc: found details on top, then the JD (or page text if no JD)\nconst NF = \u0027Not found - check\u0027;\nconst body = jd ? \u0027--- JOB DESCRIPTION ---\\n\u0027 + jd\n           : pageOk ? \u0027--- FULL PAGE TEXT (JD not found, pick it out) ---\\n\u0027 + full.slice(0, 45000)\n           : \u0027--- Page did not open. Paste the JD here yourself. ---\u0027;\nconst doc_text = [\n  \u0027Company: \u0027 + (company || NF),\n  \u0027Job Title: \u0027 + (title || NF),\n  \u0027Job URL: \u0027 + url,\n  \u0027Source: \u0027 + source,\n  \u0027Work Type: \u0027 + (work_type || NF),\n  \u0027Location: \u0027 + (location || NF),\n  \u0027Dates: \u0027 + (dates || NF),\n  \u0027Rules result: \u0027 + jd_status,\n  \u0027Date Added: \u0027 + date_added,\n  \u0027\u0027, body].join(\u0027\\n\u0027);\nconst doc_name = (company || host || \u0027Unknown\u0027) + \u0027 - \u0027 + (title || \u0027Title not found\u0027) + \u0027 - \u0027 + date_added;\n\nreturn { json: { row_number: row.row_number, company: company || NF, title: title || NF,\n                 work_type: work_type || NF, location: location || NF,\n                 source, date_added, page_ok: pageOk, doc_text, doc_name } };\n"
+                                     }
+                  },
+                  {
+                      "id":  "n15",
+                      "name":  "Ask the Brain: summary",
+                      "type":  "n8n-nodes-base.executeWorkflow",
+                      "typeVersion":  1.2,
+                      "position":  [
+                                       1320,
+                                       0
+                                   ],
+                      "onError":  "continueRegularOutput",
+                      "parameters":  {
+                                         "workflowId":  {
+                                                            "__rl":  true,
+                                                            "mode":  "id",
+                                                            "value":  "={{ $(\u0027Settings\u0027).item.json.brain_workflow_id }}"
+                                                        },
+                                         "options":  {
+                                                         "waitForSubWorkflow":  true
+                                                     },
+                                         "workflowInputs":  {
+                                                                "mappingMode":  "defineBelow",
+                                                                "value":  {
+                                                                              "task":  "summary",
+                                                                              "text":  "={{ $json.doc_text.slice(0, 30000) }}",
+                                                                              "missing":  "={{ [\u0027company\u0027,\u0027title\u0027,\u0027work_type\u0027,\u0027location\u0027].filter(k =\u003e $json[k] === \u0027Not found - check\u0027).join(\u0027, \u0027) }}"
+                                                                          },
+                                                                "matchingColumns":  [
+
+                                                                                    ],
+                                                                "schema":  [
+                                                                               {
+                                                                                   "id":  "task",
+                                                                                   "displayName":  "task",
+                                                                                   "required":  false,
+                                                                                   "defaultMatch":  false,
+                                                                                   "display":  true,
+                                                                                   "canBeUsedToMatch":  true,
+                                                                                   "type":  "string"
+                                                                               },
+                                                                               {
+                                                                                   "id":  "text",
+                                                                                   "displayName":  "text",
+                                                                                   "required":  false,
+                                                                                   "defaultMatch":  false,
+                                                                                   "display":  true,
+                                                                                   "canBeUsedToMatch":  true,
+                                                                                   "type":  "string"
+                                                                               },
+                                                                               {
+                                                                                   "id":  "missing",
+                                                                                   "displayName":  "missing",
+                                                                                   "required":  false,
+                                                                                   "defaultMatch":  false,
+                                                                                   "display":  true,
+                                                                                   "canBeUsedToMatch":  true,
+                                                                                   "type":  "string"
+                                                                               }
+                                                                           ]
+                                                            }
+                                     }
+                  },
+                  {
+                      "id":  "n14",
+                      "name":  "Save job as Google Doc",
+                      "type":  "n8n-nodes-base.googleDrive",
+                      "typeVersion":  3,
+                      "position":  [
+                                       1540,
+                                       0
+                                   ],
+                      "credentials":  {
+                                          "googleDriveOAuth2Api":  {
+                                                                       "id":  "YOUR_CREDENTIAL",
+                                                                       "name":  "Pick your own credential"
+                                                                   }
+                                      },
+                      "parameters":  {
+                                         "operation":  "createFromText",
+                                         "content":  "={{ $(\u0027Rules: find details, build Doc text\u0027).item.json.doc_text }}",
+                                         "name":  "={{ $(\u0027Rules: find details, build Doc text\u0027).item.json.doc_name }}",
+                                         "driveId":  {
+                                                         "__rl":  true,
+                                                         "mode":  "list",
+                                                         "value":  "My Drive"
+                                                     },
+                                         "folderId":  {
+                                                          "__rl":  true,
+                                                          "mode":  "id",
+                                                          "value":  "={{ $(\u0027Settings\u0027).item.json.drive_folder_id }}"
+                                                      },
+                                         "options":  {
+                                                         "convertToGoogleDocument":  true
+                                                     }
+                                     }
+                  },
+                  {
+                      "id":  "n13",
+                      "name":  "Update row in sheet",
+                      "type":  "n8n-nodes-base.googleSheets",
+                      "typeVersion":  4.5,
+                      "position":  [
+                                       1760,
+                                       0
+                                   ],
+                      "credentials":  {
+                                          "googleSheetsOAuth2Api":  {
+                                                                        "id":  "YOUR_CREDENTIAL",
+                                                                        "name":  "Pick your own credential"
+                                                                    }
+                                      },
+                      "parameters":  {
+                                         "operation":  "update",
+                                         "documentId":  {
+                                                            "__rl":  true,
+                                                            "mode":  "id",
+                                                            "value":  "={{ $(\u0027Settings\u0027).item.json.sheet_id }}"
+                                                        },
+                                         "sheetName":  {
+                                                           "__rl":  true,
+                                                           "mode":  "name",
+                                                           "value":  "Sheet1"
+                                                       },
+                                         "columns":  {
+                                                         "mappingMode":  "defineBelow",
+                                                         "matchingColumns":  [
+                                                                                 "row_number"
+                                                                             ],
+                                                         "schema":  [
+                                                                        {
+                                                                            "id":  "Job URL",
+                                                                            "displayName":  "Job URL",
+                                                                            "required":  false,
+                                                                            "defaultMatch":  false,
+                                                                            "display":  true,
+                                                                            "type":  "string",
+                                                                            "canBeUsedToMatch":  true
+                                                                        },
+                                                                        {
+                                                                            "id":  "Date Added",
+                                                                            "displayName":  "Date Added",
+                                                                            "required":  false,
+                                                                            "defaultMatch":  false,
+                                                                            "display":  true,
+                                                                            "type":  "string",
+                                                                            "canBeUsedToMatch":  true
+                                                                        },
+                                                                        {
+                                                                            "id":  "Company",
+                                                                            "displayName":  "Company",
+                                                                            "required":  false,
+                                                                            "defaultMatch":  false,
+                                                                            "display":  true,
+                                                                            "type":  "string",
+                                                                            "canBeUsedToMatch":  true
+                                                                        },
+                                                                        {
+                                                                            "id":  "Job Title",
+                                                                            "displayName":  "Job Title",
+                                                                            "required":  false,
+                                                                            "defaultMatch":  false,
+                                                                            "display":  true,
+                                                                            "type":  "string",
+                                                                            "canBeUsedToMatch":  true
+                                                                        },
+                                                                        {
+                                                                            "id":  "JD text link",
+                                                                            "displayName":  "JD text link",
+                                                                            "required":  false,
+                                                                            "defaultMatch":  false,
+                                                                            "display":  true,
+                                                                            "type":  "string",
+                                                                            "canBeUsedToMatch":  true
+                                                                        },
+                                                                        {
+                                                                            "id":  "Work type",
+                                                                            "displayName":  "Work type",
+                                                                            "required":  false,
+                                                                            "defaultMatch":  false,
+                                                                            "display":  true,
+                                                                            "type":  "string",
+                                                                            "canBeUsedToMatch":  true
+                                                                        },
+                                                                        {
+                                                                            "id":  "Location",
+                                                                            "displayName":  "Location",
+                                                                            "required":  false,
+                                                                            "defaultMatch":  false,
+                                                                            "display":  true,
+                                                                            "type":  "string",
+                                                                            "canBeUsedToMatch":  true
+                                                                        },
+                                                                        {
+                                                                            "id":  "Source",
+                                                                            "displayName":  "Source",
+                                                                            "required":  false,
+                                                                            "defaultMatch":  false,
+                                                                            "display":  true,
+                                                                            "type":  "string",
+                                                                            "canBeUsedToMatch":  true
+                                                                        },
+                                                                        {
+                                                                            "id":  "Added by",
+                                                                            "displayName":  "Added by",
+                                                                            "required":  false,
+                                                                            "defaultMatch":  false,
+                                                                            "display":  true,
+                                                                            "type":  "string",
+                                                                            "canBeUsedToMatch":  true
+                                                                        },
+                                                                        {
+                                                                            "id":  "AI Summary",
+                                                                            "displayName":  "AI Summary",
+                                                                            "required":  false,
+                                                                            "defaultMatch":  false,
+                                                                            "display":  true,
+                                                                            "type":  "string",
+                                                                            "canBeUsedToMatch":  true
+                                                                        },
+                                                                        {
+                                                                            "id":  "Phase",
+                                                                            "displayName":  "Phase",
+                                                                            "required":  false,
+                                                                            "defaultMatch":  false,
+                                                                            "display":  true,
+                                                                            "type":  "string",
+                                                                            "canBeUsedToMatch":  true
+                                                                        },
+                                                                        {
+                                                                            "id":  "Human Notes",
+                                                                            "displayName":  "Human Notes",
+                                                                            "required":  false,
+                                                                            "defaultMatch":  false,
+                                                                            "display":  true,
+                                                                            "type":  "string",
+                                                                            "canBeUsedToMatch":  true
+                                                                        },
+                                                                        {
+                                                                            "id":  "row_number",
+                                                                            "displayName":  "row_number",
+                                                                            "required":  false,
+                                                                            "defaultMatch":  false,
+                                                                            "display":  true,
+                                                                            "type":  "number",
+                                                                            "canBeUsedToMatch":  true,
+                                                                            "readOnly":  true,
+                                                                            "removed":  false
+                                                                        }
+                                                                    ],
+                                                         "value":  {
+                                                                       "row_number":  "={{ $(\u0027Rules: find details, build Doc text\u0027).item.json.row_number }}",
+                                                                       "Date Added":  "={{ $(\u0027Rules: find details, build Doc text\u0027).item.json.date_added }}",
+                                                                       "Company":  "={{ $(\u0027Rules: find details, build Doc text\u0027).item.json.company }}",
+                                                                       "Job Title":  "={{ $(\u0027Rules: find details, build Doc text\u0027).item.json.title }}",
+                                                                       "JD text link":  "={{ $(\u0027Rules: find details, build Doc text\u0027).item.json.page_ok ? \u0027https://docs.google.com/document/d/\u0027 + $json.id : \u0027Page did not open - paste JD\u0027 }}",
+                                                                       "Work type":  "={{ $(\u0027Rules: find details, build Doc text\u0027).item.json.work_type }}",
+                                                                       "Location":  "={{ $(\u0027Rules: find details, build Doc text\u0027).item.json.location }}",
+                                                                       "Source":  "={{ $(\u0027Rules: find details, build Doc text\u0027).item.json.source }}",
+                                                                       "AI Summary":  "={{ $(\u0027Ask the Brain: summary\u0027).item.json.output || \u0027AI did not answer - check\u0027 }}",
+                                                                       "Added by":  "Manual",
+                                                                       "Phase":  "New"
+                                                                   }
+                                                     },
+                                         "options":  {
+
+                                                     }
+                                     }
+                  }
+              ],
+    "connections":  {
+                        "Button pressed":  {
+                                               "main":  [
+                                                            [
+                                                                {
+                                                                    "node":  "Settings",
+                                                                    "type":  "main",
+                                                                    "index":  0
+                                                                }
+                                                            ]
+                                                        ]
+                                           },
+                        "Settings":  {
+                                         "main":  [
+                                                      [
+                                                          {
+                                                              "node":  "Read sheet",
+                                                              "type":  "main",
+                                                              "index":  0
+                                                          }
+                                                      ]
+                                                  ]
+                                     },
+                        "Read sheet":  {
+                                           "main":  [
+                                                        [
+                                                            {
+                                                                "node":  "Only new rows",
+                                                                "type":  "main",
+                                                                "index":  0
+                                                            }
+                                                        ]
+                                                    ]
+                                       },
+                        "Only new rows":  {
+                                              "main":  [
+                                                           [
+                                                               {
+                                                                   "node":  "HTTP Request",
+                                                                   "type":  "main",
+                                                                   "index":  0
+                                                               }
+                                                           ]
+                                                       ]
+                                          },
+                        "HTTP Request":  {
+                                             "main":  [
+                                                          [
+                                                              {
+                                                                  "node":  "HTML",
+                                                                  "type":  "main",
+                                                                  "index":  0
+                                                              }
+                                                          ]
+                                                      ]
+                                         },
+                        "HTML":  {
+                                     "main":  [
+                                                  [
+                                                      {
+                                                          "node":  "Rules: find details, build Doc text",
+                                                          "type":  "main",
+                                                          "index":  0
+                                                      }
+                                                  ]
+                                              ]
+                                 },
+                        "Rules: find details, build Doc text":  {
+                                                                    "main":  [
+                                                                                 [
+                                                                                     {
+                                                                                         "node":  "Ask the Brain: summary",
+                                                                                         "type":  "main",
+                                                                                         "index":  0
+                                                                                     }
+                                                                                 ]
+                                                                             ]
+                                                                },
+                        "Ask the Brain: summary":  {
+                                                       "main":  [
+                                                                    [
+                                                                        {
+                                                                            "node":  "Save job as Google Doc",
+                                                                            "type":  "main",
+                                                                            "index":  0
+                                                                        }
+                                                                    ]
+                                                                ]
+                                                   },
+                        "Save job as Google Doc":  {
+                                                       "main":  [
+                                                                    [
+                                                                        {
+                                                                            "node":  "Update row in sheet",
+                                                                            "type":  "main",
+                                                                            "index":  0
+                                                                        }
+                                                                    ]
+                                                                ]
+                                                   }
+                    },
+    "settings":  {
+                     "executionOrder":  "v1"
+                 }
+}
