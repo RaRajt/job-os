@@ -1,0 +1,100 @@
+{
+  "name": "Job OS Brain",
+  "nodes": [
+    {
+      "id": "b1",
+      "name": "Called by another workflow",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "task"
+            },
+            {
+              "name": "text"
+            },
+            {
+              "name": "missing"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "b2",
+      "name": "AI Agent (the Brain)",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        260,
+        0
+      ],
+      "parameters": {
+        "promptType": "define",
+        "text": "=Task: {{ $json.task }}\n\nIf the task is \"summary\", write at most 5 short lines:\n1. What the job is: one plain sentence on the day-to-day work.\n2. Key facts: years of experience, work type, location, pay (or \"not mentioned\").\n3. Top skills or certifications asked for (max 5).\n4. Rules missed: for each field listed here [{{ $json.missing }}], give your best guess from the text, marked \"(AI guess)\". If the list is empty, write \"Rules found everything.\"\n5. One line: anything unusual or important (deadline, travel, visa, language).\n\nIf the task is \"match\", judge how well this job fits this candidate: an India-based (Mumbai) professional aiming at\nAI governance / responsible AI, program / product / technical program management, localization, risk and compliance roles;\nholds PMP, a law background and an engineering degree, with data/analytics skills; wants remote-from-India, global remote,\nMumbai, Dubai, or relocation/visa sponsorship.\nAnswer with exactly ONE line and nothing else, in this format:\nFIT: <number 0-100> | <reason: 5 to 20 words on why it fits or not; never leave this empty> | RED FLAGS: <comma list, or \"none\">\nExample: FIT: 30 | PM role matches PMP, but it is onsite in Texas | RED FLAGS: must live in a country other than India\nRed flags to look for: must live in a country other than India, no visa sponsorship, needs many more years than a mid-senior candidate, mostly sales/quota, unpaid, contract-only, vague employer.\n\nText:\n{{ $json.text }}",
+        "options": {
+          "systemMessage": "You are the Job OS Brain, an assistant for one job seeker.\nRules you never break:\n- Use only facts from the text you are given. Never invent experience, skills or details.\n- If something is not in the text, say \"not mentioned\".\n- Plain, short English. No hype words.\n"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "id": "b3",
+      "name": "Gemini (plug your AI here)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        260,
+        220
+      ],
+      "credentials": {
+        "googlePalmApi": {
+          "id": "YOUR_GEMINI_CREDENTIAL_ID",
+          "name": "Gemini API (YOUR_CREDENTIAL)"
+        }
+      },
+      "parameters": {
+        "modelName": "models/gemini-3.5-flash-lite",
+        "options": {
+          "temperature": 0.2
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Called by another workflow": {
+      "main": [
+        [
+          {
+            "node": "AI Agent (the Brain)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gemini (plug your AI here)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent (the Brain)",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

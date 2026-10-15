@@ -1,0 +1,812 @@
+{
+ "name": "Job search (M2)",
+ "nodes": [
+  {
+   "id": "m1",
+   "name": "Every 2 days at 9:00",
+   "type": "n8n-nodes-base.scheduleTrigger",
+   "typeVersion": 1.2,
+   "position": [
+    0,
+    0
+   ],
+   "parameters": {
+    "rule": {
+     "interval": [
+      {
+       "field": "days",
+       "daysInterval": 2,
+       "triggerAtHour": 9,
+       "triggerAtMinute": 0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "m2",
+   "name": "Settings",
+   "type": "n8n-nodes-base.set",
+   "typeVersion": 3.4,
+   "position": [
+    220,
+    0
+   ],
+   "parameters": {
+    "assignments": {
+     "assignments": [
+      {
+       "id": "m2-0",
+       "name": "search_settings_id",
+       "value": "YOUR_SEARCH_SETTINGS_SHEET_ID",
+       "type": "string"
+      },
+      {
+       "id": "m2-1",
+       "name": "tracker_id",
+       "value": "YOUR_TRACKER_SHEET_ID",
+       "type": "string"
+      },
+      {
+       "id": "m2-2",
+       "name": "brain_workflow_id",
+       "value": "YOUR_BRAIN_WORKFLOW_ID",
+       "type": "string"
+      }
+     ]
+    },
+    "includeOtherFields": false,
+    "options": {}
+   }
+  },
+  {
+   "id": "m3",
+   "name": "Read Companies",
+   "type": "n8n-nodes-base.googleSheets",
+   "typeVersion": 4.5,
+   "position": [
+    440,
+    0
+   ],
+   "credentials": {
+    "googleSheetsOAuth2Api": {
+     "id": "YOUR_GOOGLE_SHEETS_CREDENTIAL_ID",
+     "name": "Google Sheets account"
+    }
+   },
+   "executeOnce": true,
+   "alwaysOutputData": true,
+   "onError": "continueRegularOutput",
+   "parameters": {
+    "operation": "read",
+    "documentId": {
+     "__rl": true,
+     "mode": "id",
+     "value": "={{ $('Settings').first().json.search_settings_id }}"
+    },
+    "sheetName": {
+     "__rl": true,
+     "mode": "name",
+     "value": "Companies"
+    },
+    "options": {}
+   }
+  },
+  {
+   "id": "m4",
+   "name": "Read Titles",
+   "type": "n8n-nodes-base.googleSheets",
+   "typeVersion": 4.5,
+   "position": [
+    660,
+    0
+   ],
+   "credentials": {
+    "googleSheetsOAuth2Api": {
+     "id": "YOUR_GOOGLE_SHEETS_CREDENTIAL_ID",
+     "name": "Google Sheets account"
+    }
+   },
+   "executeOnce": true,
+   "alwaysOutputData": true,
+   "onError": "continueRegularOutput",
+   "parameters": {
+    "operation": "read",
+    "documentId": {
+     "__rl": true,
+     "mode": "id",
+     "value": "={{ $('Settings').first().json.search_settings_id }}"
+    },
+    "sheetName": {
+     "__rl": true,
+     "mode": "name",
+     "value": "Titles"
+    },
+    "options": {}
+   }
+  },
+  {
+   "id": "m5",
+   "name": "Read Blocklist",
+   "type": "n8n-nodes-base.googleSheets",
+   "typeVersion": 4.5,
+   "position": [
+    880,
+    0
+   ],
+   "credentials": {
+    "googleSheetsOAuth2Api": {
+     "id": "YOUR_GOOGLE_SHEETS_CREDENTIAL_ID",
+     "name": "Google Sheets account"
+    }
+   },
+   "executeOnce": true,
+   "alwaysOutputData": true,
+   "onError": "continueRegularOutput",
+   "parameters": {
+    "operation": "read",
+    "documentId": {
+     "__rl": true,
+     "mode": "id",
+     "value": "={{ $('Settings').first().json.search_settings_id }}"
+    },
+    "sheetName": {
+     "__rl": true,
+     "mode": "name",
+     "value": "Blocklist"
+    },
+    "options": {}
+   }
+  },
+  {
+   "id": "m6",
+   "name": "Read Points",
+   "type": "n8n-nodes-base.googleSheets",
+   "typeVersion": 4.5,
+   "position": [
+    1100,
+    0
+   ],
+   "credentials": {
+    "googleSheetsOAuth2Api": {
+     "id": "YOUR_GOOGLE_SHEETS_CREDENTIAL_ID",
+     "name": "Google Sheets account"
+    }
+   },
+   "executeOnce": true,
+   "alwaysOutputData": true,
+   "onError": "continueRegularOutput",
+   "parameters": {
+    "operation": "read",
+    "documentId": {
+     "__rl": true,
+     "mode": "id",
+     "value": "={{ $('Settings').first().json.search_settings_id }}"
+    },
+    "sheetName": {
+     "__rl": true,
+     "mode": "name",
+     "value": "Points"
+    },
+    "options": {}
+   }
+  },
+  {
+   "id": "m16",
+   "name": "Read Locations",
+   "type": "n8n-nodes-base.googleSheets",
+   "typeVersion": 4.5,
+   "position": [
+    1210,
+    200
+   ],
+   "credentials": {
+    "googleSheetsOAuth2Api": {
+     "id": "YOUR_GOOGLE_SHEETS_CREDENTIAL_ID",
+     "name": "Google Sheets account"
+    }
+   },
+   "executeOnce": true,
+   "alwaysOutputData": true,
+   "onError": "continueRegularOutput",
+   "parameters": {
+    "operation": "read",
+    "documentId": {
+     "__rl": true,
+     "mode": "id",
+     "value": "={{ $('Settings').first().json.search_settings_id }}"
+    },
+    "sheetName": {
+     "__rl": true,
+     "mode": "name",
+     "value": "Locations"
+    },
+    "options": {}
+   }
+  },
+  {
+   "id": "m17",
+   "name": "Test webhook (m2-test)",
+   "type": "n8n-nodes-base.webhook",
+   "typeVersion": 2,
+   "position": [
+    0,
+    -200
+   ],
+   "webhookId": "YOUR_WEBHOOK_ID",
+   "parameters": {
+    "httpMethod": "GET",
+    "path": "m2-test",
+    "responseMode": "onReceived",
+    "options": {}
+   }
+  },
+  {
+   "id": "m7",
+   "name": "Fetch jobs",
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    1320,
+    0
+   ],
+   "parameters": {
+    "mode": "runOnceForAllItems",
+    "jsCode": "// Fetch jobs: ask each company's public job board (ATS) + 2 free remote boards for open jobs.\n// One failing source never stops the run (try/catch per source).\nconst companies = $('Read Companies').all().map(i => i.json)\n  .filter(c => String(c['Active (Y/N)'] || '').trim().toUpperCase() === 'Y' && String(c['Board slug'] || '').trim());\nconst strip = s => String(s || '').replace(/<[^>]+>/g, ' ').replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&')\n  .replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '\"').replace(/&#39;/g, \"'\").replace(/\\s+/g, ' ').trim();\nconst get = async (url) => {\n  const r = await this.helpers.httpRequest({ url, method: 'GET', json: true, timeout: 25000,\n    headers: { 'User-Agent': 'Mozilla/5.0 job-search-bot', Accept: 'application/json' } });\n  return typeof r === 'string' ? JSON.parse(r) : r;\n};\nconst jobs = [], log = [];\nfor (const c of companies) {\n  const sys = String(c['Job system'] || '').toLowerCase().trim();\n  const slug = encodeURIComponent(String(c['Board slug']).trim());\n  const name = String(c.Company || '').trim();\n  const add = (title, location, url, description, posted) =>\n    jobs.push({ company: name, title: strip(title), location: strip(location), url: String(url || ''),\n                source: c['Job system'], description: strip(description), posted: posted || '', why_fit: c['Why fit'] || '' });\n  try {\n    if (sys === 'greenhouse') {\n      const d = await get(`https://boards-api.greenhouse.io/v1/boards/${slug}/jobs?content=true`);\n      for (const j of d.jobs || []) add(j.title, j.location && j.location.name, j.absolute_url, strip(j.content), j.updated_at);\n    } else if (sys === 'lever') {\n      const d = await get(`https://api.lever.co/v0/postings/${slug}?mode=json`);\n      for (const j of d || []) add(j.text, (j.categories && (j.categories.allLocations || [j.categories.location]).join('; ')) + (j.workplaceType ? ' (' + j.workplaceType + ')' : ''),\n        j.hostedUrl, (j.descriptionPlain || '') + ' ' + (j.additionalPlain || '') + ' ' + (j.lists || []).map(l => l.text + ' ' + strip(l.content)).join(' '), j.createdAt ? new Date(j.createdAt).toISOString() : '');\n    } else if (sys === 'ashby') {\n      const d = await get(`https://api.ashbyhq.com/posting-api/job-board/${slug}?includeCompensation=true`);\n      for (const j of d.jobs || []) add(j.title, [j.location, ...(j.secondaryLocations || []).map(s => s.location)].filter(Boolean).join('; ') + (j.isRemote ? ' (Remote)' : ''),\n        j.jobUrl, (j.descriptionPlain || strip(j.descriptionHtml)) + ' ' + ((j.compensation && j.compensation.compensationTierSummary) || ''), j.publishedAt);\n    } else if (sys === 'smartrecruiters') {\n      const d = await get(`https://api.smartrecruiters.com/v1/companies/${slug}/postings?limit=100`);\n      for (const j of d.content || []) { const l = j.location || {};\n        add(j.name, [l.city, l.region, l.country].filter(Boolean).join(', ') + (l.remote ? ' (Remote)' : ''),\n          `https://jobs.smartrecruiters.com/${slug}/${j.id}`, '', j.releasedDate); }   // list API has no description\n    } else if (sys === 'workable') {\n      const d = await get(`https://apply.workable.com/api/v1/widget/accounts/${slug}`);\n      for (const j of d.jobs || []) add(j.title, [j.city, j.state, j.country].filter(Boolean).join(', ') + (j.telecommuting ? ' (Remote)' : ''), j.url || j.shortlink, '', j.published_on);\n    } else { log.push(name + ': job system \"' + c['Job system'] + '\" not supported'); continue; }\n    log.push(name + ': ok');\n  } catch (e) { log.push(name + ': FAILED ' + (e.message || e).toString().slice(0, 120)); }\n}\n// Free remote boards\ntry {\n  const d = await get('https://remotive.com/api/remote-jobs');\n  for (const j of d.jobs || []) jobs.push({ company: j.company_name, title: j.title, location: 'Remote - ' + (j.candidate_required_location || 'Worldwide'),   // remote-only board: \"India\" here means remote from India\n    url: j.url, source: 'Remotive', description: strip(j.description) + ' ' + (j.salary || ''), posted: j.publication_date, why_fit: '' });\n  log.push('Remotive: ok');\n} catch (e) { log.push('Remotive: FAILED ' + e.message); }\n// Himalayas \"no country limit\" jobs often still demand certain time zones (e.g. US hours). India is UTC+5.5:\n// if a time-zone list is given and does not include India, write that into the location so the gate drops it.\nconst himaLoc = j => {\n  const loc = (j.locationRestrictions || []).join('; ');\n  if (loc) return 'Remote - ' + loc;\n  const tz = (j.timezoneRestrictions || []).map(Number);\n  if (tz.length && !tz.some(z => z >= 4.5 && z <= 6.5)) return 'Remote - time zones UTC' + Math.min(...tz) + '..UTC' + Math.max(...tz) + ' only';\n  return 'Remote - Anywhere';\n};\n// Himalayas: the general feed gives only 20 newest jobs, so also search remote jobs open to India for our main title words.\nconst hima = ['https://himalayas.app/jobs/api?limit=100'];\nfor (const q of ['program manager', 'project manager', 'localization', 'AI governance', 'delivery manager'])\n  hima.push('https://himalayas.app/jobs/api/search?country=India&q=' + encodeURIComponent(q));\nfor (const hu of hima) try {\n  const d = await get(hu);\n  for (const j of d.jobs || []) jobs.push({ company: j.companyName, title: j.title,\n    location: himaLoc(j), url: j.applicationLink || j.guid, source: 'Himalayas',\n    description: strip(j.description || j.excerpt) + (j.minSalary ? ` salary ${j.minSalary}-${j.maxSalary} ${j.currency || ''}` : ''),\n    posted: j.pubDate ? new Date(j.pubDate * 1000).toISOString() : '', why_fit: '' });\n  log.push('Himalayas: ok');\n} catch (e) { log.push('Himalayas: FAILED ' + e.message); }\nif (!jobs.length) return [{ json: { _empty: true, fetch_log: log.join('\\n') } }];\nreturn jobs.map((j, i) => ({ json: i === 0 ? { ...j, fetch_log: log.join('\\n') } : j }));\n"
+   }
+  },
+  {
+   "id": "m8",
+   "name": "Quick filter",
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    1540,
+    0
+   ],
+   "parameters": {
+    "mode": "runOnceForAllItems",
+    "jsCode": "// ---- Location gate (settings from the \"Locations\" tab) ----\n// location_mode: strict = keep only jobs that are remote in an allowed scope, in an allowed city, or in a relocate region.\n//                flexible = keep everything; location only adds points later.\nconst locRows = $('Read Locations').all().map(i => i.json);\nconst lt = r => String(r.Type || '').toLowerCase().trim();\nconst lv = r => String(r.Value || '').toLowerCase().trim();\nconst modeRow = locRows.find(r => lt(r) === 'location_mode');\nconst locMode = modeRow && lv(modeRow) === 'flexible' ? 'flexible' : (locRows.length ? (modeRow ? lv(modeRow) || 'strict' : 'strict') : 'flexible');\nconst listOf = t => locRows.filter(r => lt(r) === t && lv(r)).map(lv);\n// Spelling variants. Add more here if a city has two names.\nconst ALIAS = { bengaluru: ['bangalore', 'bengaluru', 'blr'], bangalore: ['bangalore', 'bengaluru', 'blr'],\n  mumbai: ['mumbai', 'bombay'], bombay: ['mumbai', 'bombay'], 'navi mumbai': ['navi mumbai', 'new mumbai'],\n  gurgaon: ['gurgaon', 'gurugram'], gurugram: ['gurgaon', 'gurugram'], chennai: ['chennai', 'madras'],\n  kolkata: ['kolkata', 'calcutta'], 'new delhi': ['new delhi', 'delhi'], delhi: ['delhi', 'new delhi', 'ncr'],\n  worldwide: ['worldwide', 'anywhere', 'global', 'globally'], anywhere: ['worldwide', 'anywhere', 'global', 'globally'],\n  usa: ['usa', 'us', 'u s', 'united states', 'america'], us: ['usa', 'us', 'u s', 'united states'],\n  uk: ['uk', 'united kingdom', 'england', 'britain'], uae: ['uae', 'dubai', 'abu dhabi', 'united arab emirates'] };\n// Places the gate recognises (so it can tell \"somewhere else\" from \"unclear\").\nconst REGIONS = {\n  india: ['india', 'bangalore', 'bengaluru', 'hyderabad', 'mumbai', 'navi mumbai', 'pune', 'chennai', 'delhi', 'new delhi', 'gurgaon',\n    'gurugram', 'noida', 'kolkata', 'ahmedabad', 'kochi', 'jaipur', 'thane', 'coimbatore', 'indore', 'chandigarh', 'trivandrum', 'ncr'],\n  usa: ['usa', 'us', 'u s', 'united states', 'america', 'americas', 'new york', 'nyc', 'san francisco', 'sf', 'seattle', 'austin',\n    'boston', 'chicago', 'los angeles', 'denver', 'atlanta', 'california', 'texas', 'washington', 'd c', 'dc', 'pittsburgh', 'miami', 'honolulu', 'hawaii', 'chi', 'atl', 'colorado', 'ca', 'ny', 'wa', 'na', 'north america'],\n  canada: ['canada', 'toronto', 'vancouver', 'montreal'], latam: ['latam', 'latin america', 'brazil', 'mexico', 'argentina', 'colombia'],\n  europe: ['europe', 'eu', 'emea', 'uk', 'united kingdom', 'london', 'germany', 'berlin', 'france', 'paris', 'spain', 'madrid',\n    'netherlands', 'amsterdam', 'ireland', 'dublin', 'poland', 'portugal', 'lisbon', 'israel', 'tel aviv', 'switzerland', 'zurich', 'sweden', 'italy', 'milan', 'rome', 'munich', 'stockholm', 'copenhagen', 'denmark', 'belgium', 'brussels', 'austria', 'vienna', 'romania', 'bucharest', 'czech', 'prague', 'hungary', 'budapest', 'greece', 'athens', 'finland', 'helsinki', 'norway', 'oslo', 'estonia', 'tallinn', 'ukraine', 'serbia', 'belgrade', 'bulgaria', 'sofia', 'croatia', 'lithuania', 'latvia', 'turkey', 'istanbul'],\n  apac: ['apac', 'asia', 'asia pacific', 'singapore', 'australia', 'sydney', 'melbourne', 'japan', 'tokyo', 'philippines', 'new zealand', 'korea', 'south korea', 'seoul', 'kr', 'hong kong', 'taiwan', 'indonesia', 'jakarta', 'malaysia', 'vietnam', 'thailand', 'bangkok'],\n  mena: ['uae', 'dubai', 'abu dhabi', 'saudi', 'riyadh', 'qatar', 'doha', 'middle east'] };\nconst lnorm = s => ' ' + String(s || '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim() + ' ';\nconst hasW = (n, w) => n.includes(' ' + w + ' ');\nconst variants = v => ALIAS[v] || [v];\nconst regionWords = v => REGIONS[v === 'us' || v === 'united states' ? 'usa' : v] || variants(v);\nconst okCities = listOf('city'), okScopes = listOf('remote_scope'), okReloc = listOf('relocate_region');\nconst REMOTE_RX = /\\b(remote|work from home|wfh|anywhere|worldwide|distributed|telecommute|home[\\s-]based|remote[\\s-]first)\\b/;\nfunction checkLocation(raw) {\n  const n = lnorm(raw), low = String(raw || '').toLowerCase();\n  if (!n.trim()) return { pass: true, status: 'location unclear (blank)' };\n  // 1) allowed city named anywhere (multi-city posts pass if any city is allowed)\n  for (const c of okCities) { const w = variants(c).find(w => hasW(n, w)); if (w) return { pass: true, status: 'city: ' + c }; }\n  // 2) relocate regions (e.g. \"india\" = any Indian city, \"usa\")\n  for (const r of okReloc) { const w = regionWords(r).find(w => hasW(n, w)); if (w) return { pass: true, status: 'relocate: ' + r + ' (\"' + w + '\")' }; }\n  const regions = Object.keys(REGIONS).filter(k => REGIONS[k].some(w => hasW(n, w)));\n  const remote = REMOTE_RX.test(low);\n  if (remote) {\n    const onlyOther = /\\bonly\\b/.test(low) && !regions.includes('india');\n    const scopeOk = s => {\n      if (['worldwide', 'anywhere', 'global'].includes(s)) {\n        if (/\\bonly\\b/.test(low)) return false;\n        if (variants('worldwide').some(w => hasW(n, w))) return true;\n        // plain \"Remote\" with nothing else: keep (flagged). \"Remote - Nigeria\" (an unknown place) is not worldwide: drop.\n        const rest = n.replace(/\\b(remote|home|based|work|from|wfh|first|distributed|telecommute|fully|100|friendly|ok|position|job|role)\\b/g, ' ').trim();\n        return !regions.length && !rest;\n      }\n      if (s === 'india') return regions.includes('india');\n      // APAC scope: pass India, or a general APAC/Asia remote post; \"Australia (Remote)\" or \"Korea-Remote\" is remote inside another country, so it fails.\n      if (s === 'apac' || s === 'asia') return regions.includes('india') || (/\\b(apac|asia|asia pacific)\\b/.test(low) && !onlyOther);\n      return regionWords(s).some(w => hasW(n, w));\n    };\n    const hit = okScopes.find(scopeOk);\n    if (hit) return { pass: true, status: 'remote: ' + hit + (regions.length || variants('worldwide').some(w => hasW(n, w)) ? '' : ' (scope not stated - check)') };\n    return { pass: false, status: 'remote but limited to ' + (regions.join('/') || 'unknown') };\n  }\n  // US-style \"City, ST\" (e.g. \"Pittsburgh, PA\") = onsite in the USA\n  if (!regions.length && /,\\s*(AL|AK|AZ|AR|CA|CO|CT|DE|FL|GA|HI|ID|IL|IN|IA|KS|KY|LA|ME|MD|MA|MI|MN|MS|MO|MT|NE|NV|NH|NJ|NM|NY|NC|ND|OH|OK|OR|PA|RI|SC|SD|TN|TX|UT|VT|VA|WA|WV|WI|WY|DC)\\b/.test(String(raw || ''))) regions.push('usa');\n  if (regions.length) return { pass: false, status: 'onsite/hybrid outside allowed cities (' + regions.join('/') + ')' };\n  // Strict mode: a place we cannot match to an allowed city/scope (\"Hybrid\", \"Onsite\", \"Office\", \"Bucharest\") is dropped.\n  // Only a truly blank location (handled above) or plain \"Remote\" (handled in the remote branch) stays, flagged for the AI.\n  return { pass: false, status: 'no allowed city or remote scope (\"' + String(raw).slice(0, 60) + '\")' };\n}\n// Quick filter: keep a job only if (1) it passes the location gate, (2) its title has an \"include\" word,\n// no \"exclude\" word, and (3) the company is not on the active Blocklist. All matching ignores upper/lower case.\nconst titles = $('Read Titles').all().map(i => i.json);\nconst kw = t => String(t.Keyword || '').toLowerCase().trim();\nconst includes = titles.filter(t => String(t['Type (include/exclude)']).toLowerCase().trim() === 'include' && kw(t))\n  .map(t => ({ k: kw(t), p: Number(t.Priority) || 4, family: t.Family }));\nconst excludes = titles.filter(t => String(t['Type (include/exclude)']).toLowerCase().trim() === 'exclude' && kw(t)).map(kw);\nconst norm = s => String(s || '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();\nconst blocked = $('Read Blocklist').all().map(i => i.json)\n  .filter(b => String(b['Active (Y/N)'] || '').trim().toUpperCase() === 'Y').map(b => norm(b.Company)).filter(Boolean);\nconst esc = s => s.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\\\$&');\nconst has = (text, k) => new RegExp('(^|[^a-z0-9])' + esc(k) + '($|[^a-z0-9])', 'i').test(text);\nconst out = [];\nfor (const it of $input.all()) {\n  const j = it.json; if (j._empty) continue;\n  const loc = checkLocation(j.location);\n  if (locMode === 'strict' && !loc.pass) continue;\n  const t = String(j.title || '');\n  const hits = includes.filter(x => has(t, x.k));\n  if (!hits.length) continue;\n  if (excludes.some(k => has(t, k))) continue;\n  const c = norm(j.company);\n  if (blocked.some(b => c === b || c.startsWith(b + ' '))) continue;\n  const best = hits.reduce((a, b) => (b.p < a.p ? b : a));\n  out.push({ json: { ...j, title_keyword: best.k, title_priority: best.p, title_family: best.family,\n    location_status: loc.status, location_mode: locMode } });\n}\nreturn out;\n"
+   }
+  },
+  {
+   "id": "m9",
+   "name": "Score",
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    1760,
+    0
+   ],
+   "parameters": {
+    "mode": "runOnceForAllItems",
+    "jsCode": "// Score: add points from the Points tab when its words show up in location + description,\n// plus a bonus for how important the title family is. Keep jobs at/above the minimum, best first, top N.\nconst rules = $('Read Points').all().map(i => i.json);\nconst num = name => { const r = rules.find(x => String(x.Rule || '').toLowerCase().trim() === name); return r ? Number(r.Points) : NaN; };\nconst min = isNaN(num('minimum score to keep')) ? 40 : num('minimum score to keep');\nconst max = isNaN(num('max jobs per run')) ? 30 : num('max jobs per run');\nconst wordRules = rules.filter(r => String(r['Words the rules look for'] || '').trim() && !isNaN(Number(r.Points)))\n  .map(r => ({ rule: r.Rule, pts: Number(r.Points),\n    words: String(r['Words the rules look for']).toLowerCase().split(';').map(w => w.trim()).filter(Boolean) }));\nconst bonus = { 1: 40, 2: 35, 3: 30, 4: 25 };\nconst esc = s => s.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\\\$&');\nconst has = (text, w) => new RegExp('(^|[^a-z0-9])' + esc(w) + '($|[^a-z0-9])').test(text); // whole word (\"jd\" not in \"jdk\")\nconst out = [];\nfor (const it of $input.all()) {\n  const j = it.json;\n  const text = (String(j.location || '') + ' ' + String(j.description || '')).toLowerCase().replace(/\\s+/g, ' ');\n  // Location points only look at the location field (not the description), so a stray \"India\" in the text\n  // cannot push a job up. The location gate in Quick filter already decided if the place is OK.\n  const locText = String(j.location || '').toLowerCase().replace(/\\s+/g, ' ');\n  let score = bonus[j.title_priority] || 25; const why = ['Title \"' + j.title_keyword + '\" (P' + j.title_priority + ') +' + score];\n  // Location rules compete: only the single best location match counts (no double-counting \"anywhere\").\n  const isLoc = r => /remote|mumbai|dubai|india|location|city|onsite|hybrid/i.test(String(r.rule));\n  let bestLoc = null;\n  for (const r of wordRules) {\n    const w = r.words.find(w => has(isLoc(r) ? locText : text, w)); if (!w) continue;\n    if (isLoc(r)) { if (!bestLoc || r.pts > bestLoc.pts) bestLoc = { ...r, w }; }\n    else { score += r.pts; why.push(r.rule + ' +' + r.pts + ' (\"' + w + '\")'); }\n  }\n  if (bestLoc) { score += bestLoc.pts; why.push(bestLoc.rule + ' +' + bestLoc.pts + ' (\"' + bestLoc.w + '\")'); }\n  const flags = [];\n  if (/unclear|not stated/.test(String(j.location_status || ''))) flags.push('location unclear');\n  if (/\\$\\s?\\d|\\busd\\b/.test(text)) flags.push('USD');\n  if (/\\bvisa\\b|sponsor/.test(text)) flags.push('visa');\n  // \"India office\" only when this job itself points to India: the location names India/an Indian city,\n  // or the job text says the company has an office/team/entity in India or an Indian city.\n  const IN_CITY = 'india|bangalore|bengaluru|hyderabad|mumbai|pune|chennai|gurgaon|gurugram|noida|new delhi|delhi|kolkata|ahmedabad';\n  const inLoc = new RegExp('\\\\b(' + IN_CITY + ')\\\\b', 'i').test(String(j.location || ''));\n  const inText = new RegExp('\\\\b(office|offices|hub|team|teams|entity|centre|center|campus|site)s?\\\\b[^.]{0,40}\\\\b(in|at|across)\\\\b[^.]{0,30}\\\\b(' + IN_CITY + ')\\\\b|\\\\b(' + IN_CITY + ')\\\\b[^.]{0,15}\\\\b(office|offices|hub|entity|centre|center|campus)\\\\b', 'i').test(String(j.description || ''));\n  if (inLoc || inText) flags.push('India office');\n  out.push({ json: { ...j, rule_score: score, rule_why: why.join('; '), flags: flags.join(', ') } });\n}\n// Keep the best jobs, but let the big remote boards (Himalayas/Remotive) fill at most 1/3 of the slots,\n// so jobs from your own Companies list (Canonical, Zinnia, Cursor...) are not pushed out by many generic \"Anywhere\" posts.\nconst kept = out.filter(o => o.json.rule_score >= min).sort((a, b) => b.json.rule_score - a.json.rule_score);\nconst boardCap = Math.ceil(max / 3); let nBoard = 0; const res = [];\nfor (const o of kept) {\n  if (res.length >= max) break;\n  const isBoard = /^(himalayas|remotive)$/i.test(String(o.json.source || ''));\n  if (isBoard) { if (nBoard >= boardCap) continue; nBoard++; }\n  res.push(o);\n}\nreturn res;\n"
+   }
+  },
+  {
+   "id": "m18",
+   "name": "Top for AI",
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    1870,
+    200
+   ],
+   "parameters": {
+    "mode": "runOnceForAllItems",
+    "jsCode": "// Top for AI: the free Gemini tier is slow and rate-limited (503/429), so only the best jobs (by rule score) go to the Brain.\n// Change AI_MAX to check more or fewer jobs per run. The rest are still saved, marked \"AI skipped\".\nconst AI_MAX = 8;\nreturn $('Score').all().slice(0, AI_MAX).map(i => ({ json: i.json }));\n"
+   }
+  },
+  {
+   "id": "m10",
+   "name": "Ask the Brain: match",
+   "type": "n8n-nodes-base.executeWorkflow",
+   "typeVersion": 1.2,
+   "position": [
+    1980,
+    0
+   ],
+   "onError": "continueRegularOutput",
+   "retryOnFail": true,
+   "maxTries": 3,
+   "waitBetweenTries": 5000,
+   "parameters": {
+    "workflowId": {
+     "__rl": true,
+     "mode": "id",
+     "value": "={{ $('Settings').first().json.brain_workflow_id }}"
+    },
+    "mode": "each",
+    "options": {
+     "waitForSubWorkflow": true
+    },
+    "workflowInputs": {
+     "mappingMode": "defineBelow",
+     "value": {
+      "task": "match",
+      "text": "={{ ('Title: ' + $json.title + '\\nCompany: ' + $json.company + '\\nLocation: ' + $json.location + '\\nLocation gate result: ' + ($json.location_status || '') + '\\nLocation check: confirm from the description that the job is really open to the candidate (allowed remote scope or allowed city per the gate result). If it is fake remote (e.g. US/EU residents only, US time-zone hours required, onsite elsewhere), list it under RED FLAGS and lower FIT.\\n\\n' + String($json.description || '').slice(0, 8000)) }}",
+      "missing": ""
+     },
+     "matchingColumns": [],
+     "schema": [
+      {
+       "id": "task",
+       "displayName": "task",
+       "required": false,
+       "defaultMatch": false,
+       "display": true,
+       "canBeUsedToMatch": true,
+       "type": "string"
+      },
+      {
+       "id": "text",
+       "displayName": "text",
+       "required": false,
+       "defaultMatch": false,
+       "display": true,
+       "canBeUsedToMatch": true,
+       "type": "string"
+      },
+      {
+       "id": "missing",
+       "displayName": "missing",
+       "required": false,
+       "defaultMatch": false,
+       "display": true,
+       "canBeUsedToMatch": true,
+       "type": "string"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "m11",
+   "name": "Combine scores",
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    2200,
+    0
+   ],
+   "parameters": {
+    "mode": "runOnceForAllItems",
+    "jsCode": "// Combine scores: read the Brain's answer \"FIT: 72 | reason | RED FLAGS: ...\" and add it to the rule score.\nconst jobs = $('Score').all();\nconst ai = $input.all();\nconst nAI = $('Top for AI').all().length;   // only the first nAI Score items were sent to the Brain\nconst today = DateTime.now().setZone('Asia/Kolkata').toFormat('dd-MMM-yyyy');\nreturn jobs.map((s, i) => {\n  const j = s.json; const a = (ai[i] && ai[i].json) || {};\n  const ans = String(a.output || '');\n  const m = ans.match(/FIT:\\s*(\\d{1,3})/i);\n  let fit = '', final = j.rule_score, why;\n  if (m && !a.error) {\n    fit = Math.min(100, Number(m[1])); final = j.rule_score + fit;\n    why = ans.replace(/^[\\s\\S]*?FIT:\\s*\\d{1,3}\\s*\\|?\\s*/i, '').trim();\n    // Fallback: if the AI left the reason empty (\"FIT: 10 | | RED FLAGS: ...\"), write a plain one from the score.\n    if (/^\\|/.test(why) || !why.replace(/\\|?\\s*RED FLAGS:[\\s\\S]*$/i, '').trim()) {\n      const rf = (why.match(/RED FLAGS:\\s*([\\s\\S]*)$/i) || [])[1] || 'none';\n      why = (fit >= 60 ? 'Good fit' : fit >= 35 ? 'Partial fit' : 'Weak fit') + ' (AI gave no reason) | RED FLAGS: ' + rf.trim();\n    }\n  } else why = i >= nAI ? 'AI skipped (only top ' + nAI + ' are AI-checked)' : 'AI did not answer' + (a.error ? ' (' + String(a.error).slice(0, 80) + ')' : '');\n  return { json: { 'Date found': today, Company: j.company, Title: j.title, Location: j.location, 'Job URL': j.url,\n    Source: j.source, 'Rule score': j.rule_score, 'AI fit': fit, 'Final score': final,\n    'Flags': j.flags, 'Why / red flags': (why + ' || Rules: ' + j.rule_why).slice(0, 4000), Approve: '' } };\n}).sort((a, b) => b.json['Final score'] - a.json['Final score']);\n"
+   }
+  },
+  {
+   "id": "m12",
+   "name": "Read tracker (main)",
+   "type": "n8n-nodes-base.googleSheets",
+   "typeVersion": 4.5,
+   "position": [
+    2420,
+    0
+   ],
+   "credentials": {
+    "googleSheetsOAuth2Api": {
+     "id": "YOUR_GOOGLE_SHEETS_CREDENTIAL_ID",
+     "name": "Google Sheets account"
+    }
+   },
+   "executeOnce": true,
+   "alwaysOutputData": true,
+   "onError": "continueRegularOutput",
+   "parameters": {
+    "operation": "read",
+    "documentId": {
+     "__rl": true,
+     "mode": "id",
+     "value": "={{ $('Settings').first().json.tracker_id }}"
+    },
+    "sheetName": {
+     "__rl": true,
+     "mode": "name",
+     "value": "Sheet1"
+    },
+    "options": {}
+   }
+  },
+  {
+   "id": "m13",
+   "name": "Read tracker (Review)",
+   "type": "n8n-nodes-base.googleSheets",
+   "typeVersion": 4.5,
+   "position": [
+    2640,
+    0
+   ],
+   "credentials": {
+    "googleSheetsOAuth2Api": {
+     "id": "YOUR_GOOGLE_SHEETS_CREDENTIAL_ID",
+     "name": "Google Sheets account"
+    }
+   },
+   "executeOnce": true,
+   "alwaysOutputData": true,
+   "onError": "continueRegularOutput",
+   "parameters": {
+    "operation": "read",
+    "documentId": {
+     "__rl": true,
+     "mode": "id",
+     "value": "={{ $('Settings').first().json.tracker_id }}"
+    },
+    "sheetName": {
+     "__rl": true,
+     "mode": "name",
+     "value": "Review"
+    },
+    "options": {}
+   }
+  },
+  {
+   "id": "m14",
+   "name": "Duplicate check",
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    2860,
+    0
+   ],
+   "parameters": {
+    "mode": "runOnceForAllItems",
+    "jsCode": "// Duplicate check: drop jobs already in the tracker (main tab or Review), by link or by company+title.\nconst norm = s => String(s || '').toLowerCase().replace(/\\s+/g, ' ').trim();\n// Drop tracking bits (?utm_...) from links, but KEEP job-id params: many boards (Databricks, Stripe) share one page\n// like \".../job?gh_jid=123\", so cutting the whole \"?...\" made different jobs look like duplicates.\nconst nurl = u => {\n  const s = String(u || '').trim().toLowerCase(); const [base, q = ''] = s.split('#')[0].split('?');\n  const keep = q.split('&').filter(p => /^(gh_jid|jid|job_?id|id|jobid|req(uisition)?_?id)=/.test(p)).sort().join('&');\n  return base.replace(/\\/+$/, '') + (keep ? '?' + keep : '');\n};\nconst seenUrl = new Set(), seenKey = new Set();\nconst old = [...$('Read tracker (main)').all(), ...$('Read tracker (Review)').all()].map(i => i.json);\nfor (const r of old) {\n  const u = nurl(r['Job URL']); if (u) seenUrl.add(u);\n  const t = r.Title || r['Job Title']; if (r.Company && t) seenKey.add(norm(r.Company) + '|' + norm(t));\n}\nconst out = [];\nfor (const it of $('Combine scores').all()) {\n  const j = it.json; const u = nurl(j['Job URL']); const k = norm(j.Company) + '|' + norm(j.Title);\n  if ((u && seenUrl.has(u)) || seenKey.has(k)) continue;\n  seenUrl.add(u); seenKey.add(k); out.push({ json: j });   // also stops repeats inside this run\n}\nreturn out;\n"
+   }
+  },
+  {
+   "id": "m15",
+   "name": "Add to Review tab",
+   "type": "n8n-nodes-base.googleSheets",
+   "typeVersion": 4.5,
+   "position": [
+    3080,
+    0
+   ],
+   "credentials": {
+    "googleSheetsOAuth2Api": {
+     "id": "YOUR_GOOGLE_SHEETS_CREDENTIAL_ID",
+     "name": "Google Sheets account"
+    }
+   },
+   "parameters": {
+    "operation": "append",
+    "documentId": {
+     "__rl": true,
+     "mode": "id",
+     "value": "={{ $('Settings').first().json.tracker_id }}"
+    },
+    "sheetName": {
+     "__rl": true,
+     "mode": "name",
+     "value": "Review"
+    },
+    "columns": {
+     "mappingMode": "defineBelow",
+     "value": {
+      "Date found": "={{ $json['Date found'] }}",
+      "Company": "={{ $json['Company'] }}",
+      "Title": "={{ $json['Title'] }}",
+      "Location": "={{ $json['Location'] }}",
+      "Job URL": "={{ $json['Job URL'] }}",
+      "Source": "={{ $json['Source'] }}",
+      "Rule score": "={{ $json['Rule score'] }}",
+      "AI fit": "={{ $json['AI fit'] }}",
+      "Final score": "={{ $json['Final score'] }}",
+      "Flags": "={{ $json['Flags'] }}",
+      "Why / red flags": "={{ $json['Why / red flags'] }}",
+      "Approve": "={{ $json['Approve'] }}"
+     },
+     "matchingColumns": [],
+     "schema": [
+      {
+       "id": "Date found",
+       "displayName": "Date found",
+       "required": false,
+       "defaultMatch": false,
+       "display": true,
+       "type": "string",
+       "canBeUsedToMatch": true
+      },
+      {
+       "id": "Company",
+       "displayName": "Company",
+       "required": false,
+       "defaultMatch": false,
+       "display": true,
+       "type": "string",
+       "canBeUsedToMatch": true
+      },
+      {
+       "id": "Title",
+       "displayName": "Title",
+       "required": false,
+       "defaultMatch": false,
+       "display": true,
+       "type": "string",
+       "canBeUsedToMatch": true
+      },
+      {
+       "id": "Location",
+       "displayName": "Location",
+       "required": false,
+       "defaultMatch": false,
+       "display": true,
+       "type": "string",
+       "canBeUsedToMatch": true
+      },
+      {
+       "id": "Job URL",
+       "displayName": "Job URL",
+       "required": false,
+       "defaultMatch": false,
+       "display": true,
+       "type": "string",
+       "canBeUsedToMatch": true
+      },
+      {
+       "id": "Source",
+       "displayName": "Source",
+       "required": false,
+       "defaultMatch": false,
+       "display": true,
+       "type": "string",
+       "canBeUsedToMatch": true
+      },
+      {
+       "id": "Rule score",
+       "displayName": "Rule score",
+       "required": false,
+       "defaultMatch": false,
+       "display": true,
+       "type": "string",
+       "canBeUsedToMatch": true
+      },
+      {
+       "id": "AI fit",
+       "displayName": "AI fit",
+       "required": false,
+       "defaultMatch": false,
+       "display": true,
+       "type": "string",
+       "canBeUsedToMatch": true
+      },
+      {
+       "id": "Final score",
+       "displayName": "Final score",
+       "required": false,
+       "defaultMatch": false,
+       "display": true,
+       "type": "string",
+       "canBeUsedToMatch": true
+      },
+      {
+       "id": "Flags",
+       "displayName": "Flags",
+       "required": false,
+       "defaultMatch": false,
+       "display": true,
+       "type": "string",
+       "canBeUsedToMatch": true
+      },
+      {
+       "id": "Why / red flags",
+       "displayName": "Why / red flags",
+       "required": false,
+       "defaultMatch": false,
+       "display": true,
+       "type": "string",
+       "canBeUsedToMatch": true
+      },
+      {
+       "id": "Approve",
+       "displayName": "Approve",
+       "required": false,
+       "defaultMatch": false,
+       "display": true,
+       "type": "string",
+       "canBeUsedToMatch": true
+      }
+     ]
+    },
+    "options": {}
+   }
+  }
+ ],
+ "connections": {
+  "Every 2 days at 9:00": {
+   "main": [
+    [
+     {
+      "node": "Settings",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Settings": {
+   "main": [
+    [
+     {
+      "node": "Read Companies",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Read Companies": {
+   "main": [
+    [
+     {
+      "node": "Read Titles",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Read Titles": {
+   "main": [
+    [
+     {
+      "node": "Read Blocklist",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Read Blocklist": {
+   "main": [
+    [
+     {
+      "node": "Read Points",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Read Points": {
+   "main": [
+    [
+     {
+      "node": "Read Locations",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Read Locations": {
+   "main": [
+    [
+     {
+      "node": "Fetch jobs",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Fetch jobs": {
+   "main": [
+    [
+     {
+      "node": "Quick filter",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Quick filter": {
+   "main": [
+    [
+     {
+      "node": "Score",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Score": {
+   "main": [
+    [
+     {
+      "node": "Top for AI",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Top for AI": {
+   "main": [
+    [
+     {
+      "node": "Ask the Brain: match",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Ask the Brain: match": {
+   "main": [
+    [
+     {
+      "node": "Combine scores",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Combine scores": {
+   "main": [
+    [
+     {
+      "node": "Read tracker (main)",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Read tracker (main)": {
+   "main": [
+    [
+     {
+      "node": "Read tracker (Review)",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Read tracker (Review)": {
+   "main": [
+    [
+     {
+      "node": "Duplicate check",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Duplicate check": {
+   "main": [
+    [
+     {
+      "node": "Add to Review tab",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Test webhook (m2-test)": {
+   "main": [
+    [
+     {
+      "node": "Settings",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  }
+ },
+ "settings": {
+  "executionOrder": "v1",
+  "timezone": "Asia/Kolkata"
+ },
+ "meta": {
+  "notes": "Test webhook (m2-test): GET /webhook/m2-test starts a run only while the workflow is active (testing; the schedule is the real trigger). Delete it if you do not want an HTTP trigger. Top for AI: only the 8 best jobs go to the Brain (free Gemini quota). Strict location mode drops jobs with no allowed city/remote scope; plain \"Remote\" stays, flagged. Remote boards (Himalayas/Remotive) fill at most 1/3 of the kept jobs."
+ }
+}
